@@ -1,0 +1,42 @@
+name: Manual Grading (Blind Test)
+
+on: 
+  workflow_dispatch: # รันเมื่อคุณกดปุ่มเท่านั้น
+
+jobs:
+  grade:
+    name: Final Grading
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install Dependencies
+        run: npm install
+
+      # 1. สร้างไฟล์ Test ลับ (ถอดรหัสจาก Base64)
+      # นี่คือโค้ด Test ของครูที่เช็คเรื่อง Speed + Retry ครับ
+      - name: Create Teacher Test File
+        run: |
+          mkdir -p evaluation
+          "${{ secrets.TEACHER_DEVTEST001 }}" > evaluation/teacher.test.js
+
+      # 2. รัน Test + บันทึกผล
+      - name: Run Unit Tests
+        id: run_tests
+        continue-on-error: true # สำคัญ! ถึง Test ตก ก็ให้ไปต่อเพื่อส่ง AI ด่า
+        run: |
+          npm run test:grade > test_output.txt 2>&1 || true
+          cat test_output.txt
+
+      # 3. ให้ Gemini ตรวจ
+      - name: Gemini AI Review
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          npm install @google/generative-ai
+          node .github/scripts/ai_grader.js
