@@ -21,9 +21,15 @@ jobs:
       # 1. สร้างไฟล์ Test ลับ (ถอดรหัสจาก Base64)
       # นี่คือโค้ด Test ของครูที่เช็คเรื่อง Speed + Retry ครับ
       - name: Create Teacher Test File
+        env:
+          # การ Map เข้า ENV VAR จะช่วยรักษา Newline/Format ไว้ได้ดีกว่า
+          TEACHER_CODE: ${{ secrets.TEACHER_TEST_CODE }}
         run: |
           mkdir -p evaluation
-          "${{ secrets.TEACHER_DEVTEST001 }}" > evaluation/teacher.test.js
+          echo "$TEACHER_CODE" > evaluation/teacher.test.js
+          # เช็คของหน่อย
+          echo "File created. Content check (first 5 lines):"
+          head -n 5 evaluation/teacher.test.js
 
       # 2. รัน Test + บันทึกผล
       - name: Run Unit Tests
