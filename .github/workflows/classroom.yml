@@ -23,7 +23,7 @@ jobs:
       - name: Create Teacher Test File
         env:
           # การ Map เข้า ENV VAR จะช่วยรักษา Newline/Format ไว้ได้ดีกว่า
-          TEACHER_CODE: ${{ secrets.TEACHER_TEST_CODE }}
+          TEACHER_CODE: ${{ secrets.TEACHER_DEVTEST001 }}
         run: |
           mkdir -p evaluation
           echo "$TEACHER_CODE" > evaluation/teacher.test.js
